@@ -1,0 +1,16 @@
+stream:
+  protocol: rtsp
+  username: 
+  password: 
+  camera_ip: 
+  port: 554
+  #stream: stream1
+  stream: stream2
+stacks:
+  # individual stack length in seconds
+  stack_length: 60
+  # overall duration in seconds
+  stack_period: 37800
+saving:
+  fname_fmt: "/path/to/dir/c325_north_{start_time}_{stack_length}_s_{stack_type}.jpg"
+  fname_date_fmt: "%Y-%m-%d_%H%M%S_UTC"
