@@ -7,6 +7,7 @@ import time
 import queue
 
 import cv2
+import ephem
 import numpy as np
 import yaml
 from numba import njit, prange
@@ -188,9 +189,47 @@ def _get_stream_url(config):
     return url
 
 
+def _set_stack_period_to_config(config):
+    if "stack_period" in config:
+        return
+    config["stacks"]["stack_period"] = _calculate_stack_period(
+        config["location"])
+
+
+def _calculate_stack_period(config):
+    now = dt.datetime.now(dt.timezone.utc)
+    place = _get_place(config, now)
+    sun = ephem.Sun()
+    sun.compute(place)
+    if np.rad2deg(sun.alt) >= config["sun_limit"]:
+        return -1
+    next_rise = place.next_rising(sun).datetime().replace(tzinfo=dt.timezone.utc)
+    stack_period = next_rise - now
+    return int(stack_period.total_seconds())
+
+
+def _get_place(config, now):
+    lon = config["longitude"]
+    lat = config["latitude"]
+    elevation = config["elevation"]
+    sun_limit = config.get("sun_limit", 0)
+    place = ephem.Observer()
+    place.lon = "%f" % lon
+    place.lat = "%f" % lat
+    #place.pressure = 0
+    place.horizon = "%f" % sun_limit
+    place.elevation = elevation
+    place.date = now
+
+    return place
+
+
 def main():
     """Main."""
     config = read_config(sys.argv[1])
+    _set_stack_period_to_config(config)
+    if config["stacks"]["stack_period"] < 0:
+        return
     stream = StreamCapture(_get_stream_url(config["stream"]))
     saver = Saver(config["saving"])
     stacker = VideoStacker(config["stacks"], stream, saver)

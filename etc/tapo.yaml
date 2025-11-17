@@ -9,8 +9,13 @@ stream:
 stacks:
   # individual stack length in seconds
   stack_length: 60
-  # overall duration in seconds
-  stack_period: 37800
+  # overall duration in seconds, overrides "location" section
+  #stack_period: 37800
 saving:
   fname_fmt: "/path/to/dir/c325_north_{start_time}_{stack_length}_s_{stack_type}.jpg"
   fname_date_fmt: "%Y-%m-%d_%H%M%S_UTC"
+location:
+  sun_limit: -5.0
+  longitude: 27.5
+  latitude: 68.5
+  elevation: 170
