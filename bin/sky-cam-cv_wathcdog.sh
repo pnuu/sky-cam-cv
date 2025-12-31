@@ -10,6 +10,8 @@ if [ -e ${PID_FILE} ]; then
     cpu=${cpu%.*}
     # Kill the process if is not active
     if [ "$cpu" -lt "${CPU_LIMIT}" ]; then
+		date
         kill ${pid}
+		rm $PID_FILE
     fi
 fi
