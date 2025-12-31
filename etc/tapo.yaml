@@ -19,3 +19,5 @@ location:
   longitude: 27.5
   latitude: 68.5
   elevation: 170
+# Write the process ID to a file.  Use different file for each separate process.
+pid_file: /tmp/sky-cam.pid

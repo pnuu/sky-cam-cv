@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
 import datetime as dt
+import os
 import sys
 import threading
 import time
 import queue
+from contextlib import contextmanager
 
 import cv2
 import ephem
@@ -224,16 +226,34 @@ def _get_place(config, now):
     return place
 
 
+@contextmanager
+def pid_file(fname):
+    """Write the main process pid to a file if defined in the config."""
+    pid = os.getpid()
+    try:
+        if fname is not None:
+            with open(fname, "w") as fid:
+                fid.write(f"{pid}\n")
+        yield
+    finally:
+        if fname is not None:
+            os.remove(fname)
+
+
 def main():
     """Main."""
     config = read_config(sys.argv[1])
     _set_stack_period_to_config(config)
     if config["stacks"]["stack_period"] < 0:
         return
-    stream = StreamCapture(_get_stream_url(config["stream"]))
-    saver = Saver(config["saving"])
-    stacker = VideoStacker(config["stacks"], stream, saver)
-    stacker.run()
+    pid_fname = config["pid_file"]
+    if pid_fname and os.path.exists(pid_fname):
+        return
+    with pid_file(pid_fname):
+        stream = StreamCapture(_get_stream_url(config["stream"]))
+        saver = Saver(config["saving"])
+        stacker = VideoStacker(config["stacks"], stream, saver)
+        stacker.run()
 
 
 if __name__ == "__main__":
