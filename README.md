@@ -9,9 +9,11 @@ preferred):
 ```bash
 conda create -n sky-cam-cv \
     ephem \
-	py-opencv \
-	python=3.13 \
-	pyyaml
+    numba \
+    pillow \
+    py-opencv \
+    python=3.13 \
+    pyyaml
 ```
 
 ## Configuration
